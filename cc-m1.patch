@@ -1,3 +1,6 @@
+# Roughly based off of https://github.com/grailbio/bazel-toolchain/issues/88#issuecomment-1282357734
+# with an additional patch to fix the strip_prefix for the unknown-linux-gnu-rhel86 toolchain build
+
 diff --git a/toolchain/cc_toolchain_config.bzl b/toolchain/cc_toolchain_config.bzl
 index 8785a8e..1ac65a5 100644
 --- a/toolchain/cc_toolchain_config.bzl

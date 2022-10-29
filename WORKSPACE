@@ -82,6 +82,8 @@ http_archive(
     canonical_id = BAZEL_TOOLCHAIN_TAG,
     url = "https://github.com/grailbio/bazel-toolchain/archive/{tag}.tar.gz".format(tag = BAZEL_TOOLCHAIN_TAG),
 
+    # Apply a patch to bring in LLVM 15.0.2 with darwin-aarch64 support
+    # See https://github.com/grailbio/bazel-toolchain/issues/88#issuecomment-1282357734
     patch_args = ["-p1"],
     patches = ["//:cc-m1.patch"],
 )
