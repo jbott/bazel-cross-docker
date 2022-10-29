@@ -44,7 +44,7 @@ index 7493c64..53b3b53 100644
  def os_arch_pair(os, arch):
      return "{}-{}".format(os, arch)
 diff --git a/toolchain/internal/llvm_distributions.bzl b/toolchain/internal/llvm_distributions.bzl
-index 074ed84..43473ae 100644
+index 074ed84..62011f3 100644
 --- a/toolchain/internal/llvm_distributions.bzl
 +++ b/toolchain/internal/llvm_distributions.bzl
 @@ -207,6 +207,12 @@ _llvm_distributions = {
@@ -68,6 +68,16 @@ index 074ed84..43473ae 100644
  }
 
  def _get_auth(ctx, urls):
+@@ -310,6 +317,9 @@ def _distribution_urls(rctx):
+
+     strip_prefix = basename[:(len(basename) - len(".tar.xz"))]
+
++    if strip_prefix == "clang+llvm-15.0.2-x86_64-unknown-linux-gnu-rhel86":
++      strip_prefix = "clang+llvm-15.0.2-x86_64-unknown-linux-gnu"
++
+     return urls, sha256, strip_prefix
+
+ def _host_os_key(rctx):
 diff --git a/toolchain/tools/llvm_release_name.py b/toolchain/tools/llvm_release_name.py
 index 39505cc..3485d61 100755
 --- a/toolchain/tools/llvm_release_name.py
