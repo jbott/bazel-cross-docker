@@ -1,41 +1,13 @@
-From 76700e2160c89157d0faeaf2eb38435588661472 Mon Sep 17 00:00:00 2001
-From: Omer Ben-Amram <oamram@trigoretail.com>
-Date: Tue, 20 Sep 2022 12:48:12 +0300
-Subject: [PATCH] add support for m1 llvm based on llvm 15
-
----
- platforms/BUILD.bazel                     |  8 ++++++++
- toolchain/cc_toolchain_config.bzl         |  9 +++++++++
- toolchain/internal/common.bzl             |  7 +++++--
- toolchain/internal/llvm_distributions.bzl |  6 ++++++
- toolchain/tools/llvm_release_name.py      | 10 +++++++++-
- 5 files changed, 37 insertions(+), 3 deletions(-)
-
-diff --git a/platforms/BUILD.bazel b/platforms/BUILD.bazel
-index 16c1983..d9c7140 100644
---- a/platforms/BUILD.bazel
-+++ b/platforms/BUILD.bazel
-@@ -37,3 +37,11 @@ platform(
-         "@platforms//cpu:x86_64",
-     ],
- )
-+
-+platform(
-+    name = "darwin-aarch64",
-+    constraint_values = [
-+        "@platforms//os:osx",
-+        "@platforms//cpu:aarch64",
-+    ],
-+)
 diff --git a/toolchain/cc_toolchain_config.bzl b/toolchain/cc_toolchain_config.bzl
-index 8785a8e..15fd40f 100644
+index 8785a8e..1ac65a5 100644
 --- a/toolchain/cc_toolchain_config.bzl
 +++ b/toolchain/cc_toolchain_config.bzl
-@@ -69,6 +69,15 @@ def cc_toolchain_config(
+@@ -68,6 +68,15 @@ def cc_toolchain_config(
+             "clang",
              "darwin_x86_64",
              "darwin_x86_64",
-         ),
-+        "darwin-aarch64": (
++        ),
++         "darwin-aarch64": (
 +            "clang-aarch64-darwin",
 +            "aarch64-apple-macosx",
 +            "darwin",
@@ -43,10 +15,9 @@ index 8785a8e..15fd40f 100644
 +            "clang",
 +            "darwin_aarch64",
 +            "darwin_aarch64",
-+        ),
+         ),
          "linux-aarch64": (
              "clang-aarch64-linux",
-             "aarch64-unknown-linux-gnu",
 diff --git a/toolchain/internal/common.bzl b/toolchain/internal/common.bzl
 index 7493c64..53b3b53 100644
 --- a/toolchain/internal/common.bzl
@@ -54,10 +25,10 @@ index 7493c64..53b3b53 100644
 @@ -12,7 +12,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
- 
+
 -SUPPORTED_TARGETS = [("linux", "x86_64"), ("linux", "aarch64"), ("darwin", "x86_64")]
 +SUPPORTED_TARGETS = [("linux", "x86_64"), ("linux", "aarch64"), ("darwin", "x86_64"), ("darwin", "aarch64")]
- 
+
  host_tool_features = struct(
      SUPPORTS_ARG_FILE = "supports_arg_file",
 @@ -68,7 +68,10 @@ def arch(rctx):
@@ -69,53 +40,58 @@ index 7493c64..53b3b53 100644
 +    if arch == "arm64":
 +        return "aarch64"
 +    return arch
- 
+
  def os_arch_pair(os, arch):
      return "{}-{}".format(os, arch)
 diff --git a/toolchain/internal/llvm_distributions.bzl b/toolchain/internal/llvm_distributions.bzl
-index 074ed84..c4734a2 100644
+index 074ed84..43473ae 100644
 --- a/toolchain/internal/llvm_distributions.bzl
 +++ b/toolchain/internal/llvm_distributions.bzl
-@@ -207,6 +207,11 @@ _llvm_distributions = {
+@@ -207,6 +207,12 @@ _llvm_distributions = {
      "clang+llvm-14.0.0-x86_64-apple-darwin.tar.xz": "cf5af0f32d78dcf4413ef6966abbfd5b1445fe80bba57f2ff8a08f77e672b9b3",
      "clang+llvm-14.0.0-x86_64-linux-gnu-ubuntu-18.04.tar.xz": "61582215dafafb7b576ea30cc136be92c877ba1f1c31ddbbd372d6d65622fef5",
      "clang+llvm-14.0.0-x86_64-linux-sles12.4.tar.xz": "78f70cc94c3b6f562455b15cebb63e75571d50c3d488d53d9aa4cd9dded30627",
 +
-+    # 15.0.0
-+    "clang+llvm-15.0.0-arm64-apple-darwin21.0.tar.xz": "cfd5c3fa07d7fccea0687f5b4498329a6172b7a15bbc45b547d0ac86bd3452a5",
-+    "clang+llvm-15.0.0-x86_64-apple-darwin.tar.xz": "8fb11e6ada98b901398b2e7b0378a3a59e88c88c754e95d8f6b54613254d7d65",
-+    "clang+llvm-15.0.0-aarch64-linux-gnu.tar.xz": "527ed550784681f95ec7a1be8fbf5a24bd03d7da9bf31afb6523996f45670be3",
++    # 15.0.2
++    "clang+llvm-15.0.2-arm64-apple-darwin21.0.tar.xz": "8c33f807bca56568b7060d0474daf63c8c10ec521d8188ac76362354d313ec58",
++    "clang+llvm-15.0.2-x86_64-apple-darwin.tar.xz": "a37ec6204f555605fa11e9c0e139a251402590ead6e227fc72da193e03883882",
++    "clang+llvm-15.0.2-aarch64-linux-gnu.tar.xz": "527ed550784681f95ec7a1be8fbf5a24bd03d7da9bf31afb6523996f45670be3",
++    "clang+llvm-15.0.2-x86_64-unknown-linux-gnu-rhel86.tar.xz": "f48f479e91ee7297ed8306c9d4495015691237cd91cc5330d3e1ee057b0548bd",
  }
- 
+
  # Note: Unlike the user-specified llvm_mirror attribute, the URL prefixes in
-@@ -229,6 +234,7 @@ _llvm_distributions_base_url = {
+@@ -229,6 +235,7 @@ _llvm_distributions_base_url = {
      "13.0.0": "https://github.com/llvm/llvm-project/releases/download/llvmorg-",
      "13.0.1": "https://github.com/llvm/llvm-project/releases/download/llvmorg-",
      "14.0.0": "https://github.com/llvm/llvm-project/releases/download/llvmorg-",
-+    "15.0.0": "https://github.com/llvm/llvm-project/releases/download/llvmorg-",
++    "15.0.2": "https://github.com/llvm/llvm-project/releases/download/llvmorg-",
  }
- 
+
  def _get_auth(ctx, urls):
 diff --git a/toolchain/tools/llvm_release_name.py b/toolchain/tools/llvm_release_name.py
-index f093508..4ce3eeb 100755
+index 39505cc..3485d61 100755
 --- a/toolchain/tools/llvm_release_name.py
 +++ b/toolchain/tools/llvm_release_name.py
-@@ -28,9 +28,17 @@ def _minor_llvm_version(llvm_version):
- def _patch_llvm_version(llvm_version):
-     return int(llvm_version.split(".")[2])
- 
-+def _darwin_apple_suffix(major_llvm_version, arch):
-+    if major_llvm_version == 9:
-+        "darwin-apple"
-+    elif arch == "arm64":
-+        return "apple-darwin21.0"
-+    else:
-+        return "apple-darwin"
-+
+@@ -30,7 +30,12 @@ def _patch_llvm_version(llvm_version):
+
  def _darwin(llvm_version, arch):
      major_llvm_version = _major_llvm_version(llvm_version)
 -    suffix = "darwin-apple" if major_llvm_version == 9 else "apple-darwin"
-+    suffix = _darwin_apple_suffix(major_llvm_version, arch)
++    if major_llvm_version == 9:
++        suffix = "darwin-apple"
++    elif arch == "arm64":
++        suffix = "apple-darwin21.0"
++    else:
++        suffix = "apple-darwin"
      return "clang+llvm-{llvm_version}-{arch}-{suffix}.tar.xz".format(
          llvm_version=llvm_version, arch=arch, suffix=suffix)
- 
+
+@@ -86,6 +91,8 @@ def _linux(llvm_version, distname, version, arch):
+     # If you find this mapping wrong, please send a Pull Request on Github.
+     if arch in ["aarch64", "armv7a", "mips", "mipsel"]:
+         os_name = "linux-gnu"
++    elif major_llvm_version == 15:
++        os_name = "unknown-linux-gnu-rhel86"
+     elif distname == "freebsd":
+         os_name = "unknown-freebsd-%s" % version
+     elif distname == "suse":

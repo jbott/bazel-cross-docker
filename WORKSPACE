@@ -92,9 +92,10 @@ bazel_toolchain_dependencies()
 
 load("@com_grail_bazel_toolchain//toolchain:rules.bzl", "llvm_toolchain")
 
+LLVM_VERSION = "15.0.2"
 llvm_toolchain(
     name = "llvm_toolchain",
-    llvm_version = "15.0.0",
+    llvm_version = LLVM_VERSION,
 )
 
 load("@llvm_toolchain//:toolchains.bzl", "llvm_register_toolchains")
@@ -117,7 +118,7 @@ filegroup(
 
 llvm_toolchain(
     name = "llvm_toolchain_with_sysroot",
-    llvm_version = "14.0.0",
+    llvm_version = LLVM_VERSION,
     sysroot = {
         "linux-x86_64": "@org_chromium_sysroot_linux_x64//:sysroot",
     },
