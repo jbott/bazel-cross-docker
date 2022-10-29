@@ -71,7 +71,6 @@ _py3_image_repos()
 
 
 # CC toolchain
-
 BAZEL_TOOLCHAIN_TAG = "0.7.2"
 BAZEL_TOOLCHAIN_SHA = "f7aa8e59c9d3cafde6edb372d9bd25fb4ee7293ab20b916d867cd0baaa642529"
 
@@ -104,7 +103,8 @@ load("@llvm_toolchain//:toolchains.bzl", "llvm_register_toolchains")
 
 llvm_register_toolchains()
 
-# This sysroot is used by github.com/vsco/bazel-toolchains.
+# This is the current sysroot as of 2022-10-28
+# See: https://chromium.googlesource.com/chromium/src/build/+/ffbaf8b09f0c117eaea0d3e82a61fbf1918b0eed/linux/sysroot_scripts/sysroots.json
 http_archive(
     name = "org_chromium_sysroot_linux_x64",
     build_file_content = """
@@ -114,8 +114,8 @@ filegroup(
   visibility = ["//visibility:public"],
 )
 """,
-    sha256 = "84656a6df544ecef62169cfe3ab6e41bb4346a62d3ba2a045dc5a0a2ecea94a3",
-    urls = ["https://commondatastorage.googleapis.com/chrome-linux-sysroot/toolchain/2202c161310ffde63729f29d27fe7bb24a0bc540/debian_stretch_amd64_sysroot.tar.xz"],
+    sha256 = "d56cdba5aa9a63d58f7abfd7dd5f8061a7772edea196a6ac27e9ee92c95c2f81",
+    urls = ["https://commondatastorage.googleapis.com/chrome-linux-sysroot/toolchain/5ebc72fdaf206572cdc6664b7e78a8eb38d7f526/debian_bullseye_amd64_sysroot.tar.xz"]
 )
 
 llvm_toolchain(
